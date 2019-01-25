@@ -1,0 +1,3 @@
+[flake8]
+max_complexity = 5
+max-line-length = 99
