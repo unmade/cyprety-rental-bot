@@ -1,28 +1,41 @@
+PYTHONPATH := $(CURDIR)
+MYPYPATH := $(PYTHONPATH)
+
+
 nopyc:
 	@find . -name "*.pyc" -exec rm -f {} \;
 
 
 isort:
-	@isort --check-only -q
+	@pipenv run isort --check-only -q
 
 
 flake8:
-	@flake8 app/* tests/*
+	@pipenv run flake8 app/* tests/*
 
 
 pylint:
-	@pylint app/* tests/*
+	@pipenv run pylint app/* tests/*
 
 
-lint: isort flake8 pylint
+mypy:
+	@MYPYPATH=$(MYPYPATH) pipenv run mypy app
+
+
+lint: isort flake8 pylint mypy
 
 
 test:
-	@pytest
+	@PYTHONPATH=$(PYTHONPATH) pipenv run pytest
 
 
 commit:
 	@git commit -am working
 
 
-tc: lint && test && commit
+revert:
+	@git reset --hard
+
+
+tcr:
+	@make lint && (make test && make commit || make revert)

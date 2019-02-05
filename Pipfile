@@ -6,11 +6,24 @@ name = "pypi"
 [dev-packages]
 pytest = "*"
 mypy = "*"
-pytest-mock = "*"
 pytest-cov = "*"
 flake8 = "*"
 pylint = "*"
 isort = "*"
+pytest-asyncio = "*"
+asynctest = "*"
+aresponses = "*"
+pytest-faker = "*"
+codacy-coverage = "*"
 
 [requires]
 python_version = "3.7"
+
+[packages]
+aiohttp = "*"
+beautifulsoup4 = "*"
+aiosqlite = "*"
+aiogram = "*"
+certifi = "*"
+typing-extensions = "*"
+pytz = "*"
