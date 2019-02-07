@@ -54,10 +54,10 @@
         },
         "aiosqlite": {
             "hashes": [
-                "sha256:a29bf465f0c366c9495c90c1802e62828eeccf12f3d704a33b14a50851e1715f"
+                "sha256:af4fed9e778756fa0ffffc7a8b14c4d7b1a57155dc5669f18e45107313f6019e"
             ],
             "index": "pypi",
-            "version": "==0.8.1"
+            "version": "==0.9.0"
         },
         "async-timeout": {
             "hashes": [
@@ -523,10 +523,10 @@
         },
         "python-dateutil": {
             "hashes": [
-                "sha256:063df5763652e21de43de7d9e00ccf239f953a832941e37be541614732cdfc93",
-                "sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02"
+                "sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb",
+                "sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"
             ],
-            "version": "==2.7.5"
+            "version": "==2.8.0"
         },
         "requests": {
             "hashes": [

@@ -49,19 +49,6 @@ async def test_get_connection_returns_already_initialized_one(amocker):
 
 
 @pytest.mark.asyncio
-async def test_sqlite_db_adapter_as_context_manager(amocker):
-    db_adapter = adapters.SqliteDBAdapter(':memory:')
-    db_adapter.get_connection = amocker.CoroutineMock()
-    db_adapter.close = amocker.CoroutineMock()
-
-    async with db_adapter as db_adapter_cm:
-        assert isinstance(db_adapter_cm, adapters.SqliteDBAdapter)
-
-    assert db_adapter.get_connection.called
-    assert db_adapter.close.called
-
-
-@pytest.mark.asyncio
 async def test_sqlite_db_adapter_select_chats(sqlite_db_adapter: adapters.SqliteDBAdapter):
     price = datatypes.Price(700)
 
@@ -166,16 +153,6 @@ def test_bot_adapter_init(bot_adapter: adapters.BotAdapter):
 
 
 @pytest.mark.asyncio
-async def test_bot_adapter_send_message(amocker, bot_adapter: adapters.BotAdapter):
-    chat_id = 123456
-    with amocker.patch.object(bot_adapter.bot, 'send_message') as send_message_mock:
-        assert await bot_adapter.send_message(chat_id, text='') is None
-
-    assert send_message_mock.called
-    assert send_message_mock.call_args == amocker.call(chat_id, text='', parse_mode='Markdown')
-
-
-@pytest.mark.asyncio
 async def test_bot_adapter_close(amocker, bot_adapter: adapters.BotAdapter):
     with amocker.patch.object(bot_adapter.bot, 'close') as close_mock:
         assert await bot_adapter.close() is None
@@ -185,9 +162,7 @@ async def test_bot_adapter_close(amocker, bot_adapter: adapters.BotAdapter):
 
 
 @pytest.mark.asyncio
-async def test_bot_adapter_as_context_manager(amocker, bot_adapter: adapters.BotAdapter):
-    with amocker.patch.object(bot_adapter, 'close') as close_mock:
-        async with bot_adapter as bot_adapter_cm:
-            assert isinstance(bot_adapter_cm, adapters.BotAdapter)
-
-    assert close_mock.called
+async def test_bot_adapter_broadcast(chat_factory, bot_adapter: adapters.BotAdapter):
+    chat = chat_factory()
+    assert await bot_adapter.broadcast(chats=[chat], text='') is None
+    assert bot_adapter.bot.send_message.called

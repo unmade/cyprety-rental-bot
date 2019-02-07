@@ -78,12 +78,16 @@ class BazarakiParser(Parser):
     def get_item_created_at(self, item: bs4.element.Tag) -> float:
         dt_block = item.find('div', class_='announcement-block__date')
         dt_text = dt_block.string.partition(',')[0].strip()
+        now = datetime.datetime.now(tz=self.TZ)
         if 'Today' in dt_text:
-            today_str = datetime.datetime.now(tz=self.TZ).strftime('%d.%m.%Y')
+            today_str = now.strftime('%d.%m.%Y')
             dt_text = dt_text.replace('Today', today_str)
         if 'Yesterday' in dt_text:
-            yesterday_dt = datetime.datetime.now(tz=self.TZ).date() - datetime.timedelta(days=1)
+            yesterday_dt = now.date() - datetime.timedelta(days=1)
             dt_text = dt_text.replace('Yesterday', yesterday_dt.strftime('%d.%m.%Y'))
         local_dt = datetime.datetime.strptime(dt_text, '%d.%m.%Y %H:%M')
         dt = self.TZ.normalize(self.TZ.localize(local_dt, is_dst=True))
+        if dt > now:
+            # some strange bug occurs at midnight: record has `Today` but it is tomorrow already
+            dt -= datetime.timedelta(days=1)
         return calendar.timegm(dt.utctimetuple())

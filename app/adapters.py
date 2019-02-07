@@ -10,21 +10,13 @@ from . import datatypes, entities
 
 class SqliteDBAdapter:
 
-    def __init__(self, database: str, loop: Optional[asyncio.AbstractEventLoop] = None):
+    def __init__(self, database: str):
         self.database = database
-        self.loop = loop
         self.connect: Optional[aiosqlite.Connection] = None
-
-    async def __aenter__(self):
-        await self.get_connection()
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
 
     async def get_connection(self) -> aiosqlite.Connection:
         if self.connect is None:
-            self.connect = aiosqlite.connect(self.database, loop=self.loop)
+            self.connect = aiosqlite.connect(self.database)
             await self.connect.__aenter__()
             self.connect.row_factory = aiosqlite.Row
         return self.connect
@@ -103,18 +95,14 @@ class SqliteDBAdapter:
 
 class BotAdapter:
 
-    def __init__(self, token: str, loop: Optional[asyncio.AbstractEventLoop] = None):
-        self.bot = aiogram.Bot(token, loop=loop)
+    def __init__(self, token: str):
+        self.bot = aiogram.Bot(token)
         self.dp = aiogram.Dispatcher(self.bot)
-
-    async def __aenter__(self) -> 'BotAdapter':
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()
 
     async def close(self) -> None:
         await self.bot.close()
 
-    async def send_message(self, chat_id: int, text: str) -> None:
-        await self.bot.send_message(chat_id, text=text, parse_mode='Markdown')
+    async def broadcast(self, chats: List[entities.Chat], text: str) -> None:
+        for chat in chats:
+            await self.bot.send_message(chat.id, text=text, parse_mode='Markdown')
+            await asyncio.sleep(.05)  # 20 messages per second

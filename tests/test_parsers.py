@@ -147,18 +147,23 @@ def test_bazaraki_parser_get_item_created_at_today_date(bazaraki_today_date_item
     tz_info = pytz.timezone('Asia/Nicosia')
     parser = parsers.BazarakiParser()
     today = datetime.datetime.now(tz=tz_info)
-    today_local_dt = datetime.datetime(today.year, today.month, today.day, 13, 44)
+    today_local_dt = datetime.datetime(today.year, today.month, today.day, 0, 0)
     today_dt = tz_info.normalize(tz_info.localize(today_local_dt, is_dst=True))
     today_ts = calendar.timegm(today_dt.utctimetuple())
     assert parser.get_item_created_at(bazaraki_today_date_item) == today_ts
 
 
-def test_bazaraki_parser_get_item_created_at_yesterday_date(bazaraki_yesterday_date_item):
+@pytest.mark.parametrize('item_fixture', [
+    'bazaraki_yesterday_date_item',
+    'bazaraki_end_of_today_date_item',
+])
+def test_bazaraki_parser_get_item_created_at_yesterday_date(request, item_fixture):
+    item = request.getfixturevalue(item_fixture)
     tz_info = pytz.timezone('Asia/Nicosia')
     parser = parsers.BazarakiParser()
     today = datetime.datetime.now(tz=tz_info)
-    today_dt = datetime.datetime(today.year, today.month, today.day, 23, 4)
+    today_dt = datetime.datetime(today.year, today.month, today.day, 23, 59)
     yesterday_local_dt = today_dt - datetime.timedelta(days=1)
     yesterday_dt = tz_info.normalize(tz_info.localize(yesterday_local_dt, is_dst=True))
     yesterday_ts = calendar.timegm(yesterday_dt.utctimetuple())
-    assert parser.get_item_created_at(bazaraki_yesterday_date_item) == yesterday_ts
+    assert parser.get_item_created_at(item) == yesterday_ts

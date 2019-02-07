@@ -25,11 +25,11 @@ async def test_application_shutdown(amocker, application: executor.Application):
 
 
 @pytest.mark.asyncio
-async def test_application_run(amocker, application: executor.Application):
+async def test_application_run(event_loop, amocker, application: executor.Application):
     application.bot.start_polling = amocker.CoroutineMock()
     application.send_service.start_sending = amocker.CoroutineMock()
 
-    application.run()
+    application.run(event_loop)
 
     assert application.bot.start_polling.called
     assert application.send_service.start_sending.called

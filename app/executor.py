@@ -1,40 +1,35 @@
 import asyncio
 from typing import List
 
-from . import adapters, bot, client, config, providers, registry, repositories, services
+from . import adapters, bots, client, config, providers, registry, services
 
 
 def run():
     loop = asyncio.get_event_loop()
-    application = Application(loop)
+    application = Application()
 
     try:
         loop.run_until_complete(application.init())
-        application.run()
+        application.run(loop)
     finally:
         loop.run_until_complete(application.shutdown())
 
 
 class Application:
 
-    def __init__(self, loop: asyncio.AbstractEventLoop):
+    def __init__(self):
         conf = config.Config()
-        self.loop = loop
 
-        self.bot_adapter = adapters.BotAdapter(token=conf.bot_token, loop=loop)
-        self.db_adapter = adapters.SqliteDBAdapter(conf.database, loop=loop)
-        self.webclient = client.Client(loop=loop)
-
-        property_repo = repositories.PropertyRepository(providers=self.provider_list)
-        bot_repo = repositories.BotRepository(bot_adapter=self.bot_adapter)
-        chat_repo = repositories.ChatRepository(db_adapter=self.db_adapter)
+        self.bot_adapter = adapters.BotAdapter(token=conf.bot_token)
+        self.db_adapter = adapters.SqliteDBAdapter(conf.database)
+        self.webclient = client.Client()
 
         self.send_service = services.SendService(
-            bot_repo=bot_repo, chat_repo=chat_repo, property_repo=property_repo,
+            bot_adapter=self.bot_adapter, db_adapter=self.db_adapter, providers=self.provider_list
         )
 
-        bot_service = services.BotService(chat_repo=chat_repo)
-        self.bot = bot.Bot(conf.bot_token, bot_service=bot_service)
+        chat_service = services.ChatService(db_adapter=self.db_adapter)
+        self.bot = bots.TelegramBot(conf.bot_token, chat_service=chat_service)
 
     @property
     def provider_list(self) -> List[providers.Provider]:
@@ -46,11 +41,11 @@ class Application:
     async def init(self) -> None:
         await self.db_adapter.create_tables()
 
+    def run(self, loop: asyncio.AbstractEventLoop) -> None:
+        loop.create_task(self.send_service.start_sending())
+        self.bot.start_polling()
+
     async def shutdown(self) -> None:
         await self.db_adapter.close()
         await self.bot_adapter.close()
         await self.webclient.close()
-
-    def run(self) -> None:
-        self.loop.create_task(self.send_service.start_sending())
-        self.bot.start_polling(loop=self.loop)

@@ -87,3 +87,21 @@ async def test_provider_get_updates_filters_newest(
     properties = await provider.get_updates()
 
     assert properties == [new_property]
+
+
+@pytest.mark.asyncio
+async def test_provider_filter_duplicates(amocker, property_factory, parser_mock, client_mock):
+    property1 = property_factory(url='https://ex.com/1', created_at=time.time() + 10_000)
+    property2 = property_factory(created_at=time.time() + 10_000)
+
+    parser_mock.parse = amocker.Mock(return_value=[property1, property2])
+    provider = providers.Provider('https://example.com', parser=parser_mock, webclient=client_mock)
+
+    await provider.get_updates()
+
+    property1 = property_factory(url='https://ex.com/1', created_at=time.time() + 11_000)
+    property2 = property_factory(created_at=time.time() + 11_000)
+    parser_mock.parse = amocker.Mock(return_value=[property1, property2])
+    properties = await provider.get_updates()
+
+    assert properties == [property2]

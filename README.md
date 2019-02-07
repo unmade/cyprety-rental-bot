@@ -21,7 +21,9 @@ TELEGRAM_BOT_TOKEN=<YOUR_BOT_TOKEN> python -m app
 
 ## Afterthoughts
 
-_tl;dr TCR is cool, but have some downsides. `mypy` is just cool_
+> tl;dr TCR is cool, but have some downsides. `mypy` is just cool_
+
+_this is relevant for [this](https://github.com/unmade/cyprety-rental-bot/releases/tag/1.0.0) revision_
 
 This bot is something I made just for fun to try out some ideas from clean architecture
 and new [test && commit || revert (TCR)]((https://medium.com/@kentbeck_7670/test-commit-revert-870bbd756864))

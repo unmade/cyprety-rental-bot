@@ -1,67 +1,55 @@
-from . import datatypes, repositories
+import asyncio
+import itertools
+from typing import AsyncGenerator, List
+
+import dataclasses
+
+from . import datatypes, entities, protocols
+from . import providers as providers_module
 
 
+@dataclasses.dataclass
 class SendService:
-
-    def __init__(
-            self,
-            bot_repo: repositories.BotRepository,
-            property_repo: repositories.PropertyRepository,
-            chat_repo: repositories.ChatRepository,
-    ):
-        self.bot_repo = bot_repo
-        self.property_repo = property_repo
-        self.chat_repo = chat_repo
+    bot_adapter: protocols.BotAdapter
+    db_adapter: protocols.DBAdapter
+    providers: List[providers_module.Provider]
 
     async def start_sending(self) -> None:
-        async for real_property in self.property_repo.get_updates(interval=2):
-            chats = await self.chat_repo.list(with_price=real_property.price)
-            text = f'[{real_property.title} €{real_property.price}]({real_property.telegram_link})'
-            await self.bot_repo.broadcast(chats=chats, text=text)
+        async for update in self.get_updates(interval=2):
+            chats = await self.db_adapter.select_chats(interested_in_price=update.price)
+            text = f'[{update.title} €{update.price}]({update.telegram_link})'
+            await self.bot_adapter.broadcast(chats=chats, text=text)
+
+    async def get_updates(self, interval: float) -> AsyncGenerator[entities.Property, None]:
+        while True:
+            futures = [provider.get_updates() for provider in self.providers]
+            result = await asyncio.gather(*futures)
+            properties = itertools.chain.from_iterable(result)
+            for real_property in properties:
+                yield real_property
+            await asyncio.sleep(interval)
 
 
-class BotService:
+@dataclasses.dataclass
+class ChatService:
+    db_adapter: protocols.DBAdapter
 
-    def __init__(self, chat_repo: repositories.ChatRepository):
-        self.chat_repo = chat_repo
+    async def get_or_create(self, chat_id: int) -> entities.Chat:
+        chat = await self.db_adapter.get_chat(chat_id)
+        if not chat:
+            chat = await self.db_adapter.create_chat(chat_id)
+        return chat
 
-    async def welcome(self, chat_id: int, text: str) -> str:
-        del text
-        await self.chat_repo.get_or_create(chat_id)
-        return (
-            'I can notify you about new advertisements '
-            'for houses & apartments to rent in Limassol district.\n\n'
+    async def set_min_price(self, chat_id: int, price: datatypes.Price) -> None:
+        chat = await self.get_or_create(chat_id)
+        if chat.max_price and chat.max_price < price:
+            raise ValueError('Min price must be lesser than max price')
+        chat.min_price = price
+        await self.db_adapter.update_chat(chat)
 
-            'You can set price range using these commands:\n\n'
-
-            '/set_min_price - sets minimum shown price\n'
-            '/set_max_price - sets maximum shown price'
-        )
-
-    async def set_min_price(self, chat_id: int, text: str) -> str:
-        try:
-            min_price = datatypes.Price(text)
-        except (ArithmeticError, ValueError):
-            return 'Please use numbers to set the price. For example: 700.0'
-
-        chat = await self.chat_repo.get_or_create(chat_id)
-        if chat.max_price and chat.max_price < min_price:
-            return 'Min price must be lesser than max price'
-
-        chat.min_price = min_price
-        await self.chat_repo.update(chat)
-        return f'Minimum shown price is set to €{chat.min_price}'
-
-    async def set_max_price(self, chat_id: int, text: str) -> str:
-        try:
-            max_price = datatypes.Price(text)
-        except (ArithmeticError, ValueError):
-            return 'Please use numbers to set the price. For example: 700.0'
-
-        chat = await self.chat_repo.get_or_create(chat_id)
-        if chat.min_price and chat.min_price > max_price:
-            return 'Max price must be greater than min price'
-
-        chat.max_price = max_price
-        await self.chat_repo.update(chat)
-        return f'Maximum shown price is set to €{chat.max_price}'
+    async def set_max_price(self, chat_id: int, price: datatypes.Price) -> None:
+        chat = await self.get_or_create(chat_id)
+        if chat.min_price and chat.min_price > price:
+            raise ValueError('Max price must be greater than min price')
+        chat.max_price = price
+        await self.db_adapter.update_chat(chat)
