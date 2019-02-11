@@ -16,6 +16,7 @@ docker run \
     -d \
     --rm \
     --env TELEGRAM_BOT_TOKEN=$1 \
+    --env SENTRY_RELEASE_VERSION=$2 \
     --volume ~/cyprety-rental-bot/sqlite.db:/cyprety-rental-bot/sqlite.db \
     --name ${CONTAINER_NAME} \
     fdooch/cyrentbot:$2

@@ -6,9 +6,22 @@ from app import executor, parsers
 @pytest.mark.asyncio
 async def test_application_init(amocker, application: executor.Application):
     application.db_adapter.create_tables = amocker.CoroutineMock()
-    await application.init()
+    with amocker.patch('sentry_sdk.init') as sentry_init_mock:
+        await application.init()
 
     assert application.db_adapter.create_tables.called
+    assert not sentry_init_mock.called
+
+
+@pytest.mark.asyncio
+async def test_application_init_setups_sentry(amocker, application: executor.Application):
+    application.conf.sentry_dsn = 'https://sentry.io/1234'
+    application.db_adapter.create_tables = amocker.CoroutineMock()
+    with amocker.patch('sentry_sdk.init') as sentry_init_mock:
+        await application.init()
+
+    assert application.db_adapter.create_tables.called
+    assert sentry_init_mock.called
 
 
 @pytest.mark.asyncio

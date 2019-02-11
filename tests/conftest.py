@@ -16,7 +16,7 @@ def fake_bot_token():
 
 @pytest.fixture
 def conf_mock(amocker, fake_bot_token):
-    return amocker.Mock(bot_token=fake_bot_token, database=':memory:')
+    return amocker.Mock(bot_token=fake_bot_token, database=':memory:', sentry_dsn=None)
 
 
 @pytest.fixture

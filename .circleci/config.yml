@@ -68,7 +68,20 @@ jobs:
           command: |
             echo "${SERVER_PUBLIC_KEY}" >> ~/.ssh/known_hosts
             ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}"
-
+  sentry-release:
+    working_directory: ~/cyprety-rental-bot
+    docker:
+      - image: circleci/python:3.7.2
+    steps:
+      - checkout
+      - run:
+          name: Install sentry-cli
+          command: curl -sL https://sentry.io/get-cli/ | bash
+      - run:
+          name: Create sentry release
+          command: |
+            sentry-cli releases new "${CIRCLE_TAG}" --finalize
+            sentry-cli releases set-commits "${CIRCLE_TAG}" --auto
 
 workflows:
   version: 2
