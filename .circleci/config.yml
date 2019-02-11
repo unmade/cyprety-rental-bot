@@ -107,3 +107,11 @@ workflows:
               only: /.*/
             branches:
               ignore: /.*/
+      - sentry-release:
+          requires:
+            - deploy
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
