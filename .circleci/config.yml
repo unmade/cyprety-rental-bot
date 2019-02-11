@@ -71,16 +71,16 @@ jobs:
       - run:
           name: Creating sentry release
           command: |
-            sentry-cli releases new -p cyrentbot "${SENTRY_PROJECT}@${SENTRY_RELEASE}"
-            sentry-cli releases set-commits "${SENTRY_PROJECT}@${SENTRY_RELEASE}" --auto
+            sentry-cli releases new -p cyrentbot "${SENTRY_PROJECT}@${CIRCLE_TAG}"
+            sentry-cli releases set-commits "${SENTRY_PROJECT}@${CIRCLE_TAG}" --auto
       - run:
           name: Deploy
           command: |
             echo "${SERVER_PUBLIC_KEY}" >> ~/.ssh/known_hosts
-            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_PROJECT}@${SENTRY_RELEASE}"
+            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_PROJECT}@${CIRCLE_TAG}"
       - run:
           name: Finalizing sentry release
-          command: sentry-cli releases finalize "${SENTRY_PROJECT}@${SENTRY_RELEASE}"
+          command: sentry-cli releases finalize "${SENTRY_PROJECT}@${CIRCLE_TAG}"
 
 workflows:
   version: 2
