@@ -35,7 +35,4 @@ class Config:
 
     @property
     def sentry_release_version(self) -> Optional[str]:
-        release_version = os.getenv(self._SENTRY_RELEASE_VERSION)
-        if release_version:
-            return f'cyprety-rental-bot@{release_version}'
-        return None
+        return os.getenv(self._SENTRY_RELEASE_VERSION)

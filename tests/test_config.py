@@ -56,7 +56,7 @@ def test_database_sentry_release_version_is_none(amocker, fake_bot_token):
 
 
 def test_database_sentry_release_version(amocker, fake_bot_token):
-    envs = {'TELEGRAM_BOT_TOKEN': fake_bot_token, 'SENTRY_RELEASE_VERSION': '2.2.0'}
+    envs = {'TELEGRAM_BOT_TOKEN': fake_bot_token, 'SENTRY_RELEASE_VERSION': 'rentbot@2.2.0'}
     with amocker.patch.dict(os.environ, envs):
         conf = config.Config()
-        assert conf.sentry_release_version == 'cyprety-rental-bot@2.2.0'
+        assert conf.sentry_release_version == 'rentbot@2.2.0'

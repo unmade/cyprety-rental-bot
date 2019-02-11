@@ -58,30 +58,29 @@ jobs:
     working_directory: ~/cyprety-rental-bot
     docker:
       - image: circleci/python:3.7.2
+    environment:
+      SENTRY_RELEASE: cyprety-rental-bot@${CIRCLE_TAG}
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
             - "a9:da:4a:ea:d1:c4:92:5c:fb:b0:83:41:93:56:ad:b3"
       - run:
+          name: Installing sentry-cli
+          command: curl -sL https://sentry.io/get-cli/ | bash
+      - run:
+          name: Creating sentry release
+          command: |
+            sentry-cli releases new -p cyrentbot "${SENTRY_RELEASE}"
+            sentry-cli releases set-commits "${SENTRY_RELEASE}" --auto
+      - run:
           name: Deploy
           command: |
             echo "${SERVER_PUBLIC_KEY}" >> ~/.ssh/known_hosts
-            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}"
-  sentry-release:
-    working_directory: ~/cyprety-rental-bot
-    docker:
-      - image: circleci/python:3.7.2
-    steps:
-      - checkout
+            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_RELEASE}"
       - run:
-          name: Install sentry-cli
-          command: curl -sL https://sentry.io/get-cli/ | bash
-      - run:
-          name: Create sentry release
-          command: |
-            sentry-cli releases new "${CIRCLE_TAG}" --finalize
-            sentry-cli releases set-commits "${CIRCLE_TAG}" --auto
+          name: Finalizing sentry release
+          command: sentry-cli releases finalize "{SENTRY_RELEASE}"
 
 workflows:
   version: 2
@@ -102,14 +101,6 @@ workflows:
       - deploy:
           requires:
             - build
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-      - sentry-release:
-          requires:
-            - deploy
           filters:
             tags:
               only: /.*/
