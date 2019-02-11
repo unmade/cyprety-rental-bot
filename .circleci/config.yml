@@ -59,7 +59,7 @@ jobs:
     docker:
       - image: circleci/python:3.7.2
     environment:
-      SENTRY_PROJECT: cyprety-rental-bot
+      SENTRY_RELEASE_PREFIX: cyprety-rental-bot
     steps:
       - checkout
       - add_ssh_keys:
@@ -71,16 +71,16 @@ jobs:
       - run:
           name: Creating sentry release
           command: |
-            sentry-cli releases new -p cyrentbot "${SENTRY_PROJECT}@${CIRCLE_TAG}"
-            sentry-cli releases set-commits "${SENTRY_PROJECT}@${CIRCLE_TAG}" --auto
+            sentry-cli releases new -p cyrentbot "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
+            sentry-cli releases set-commits "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}" --auto
       - run:
           name: Deploy
           command: |
             echo "${SERVER_PUBLIC_KEY}" >> ~/.ssh/known_hosts
-            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_PROJECT}@${CIRCLE_TAG}"
+            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
       - run:
           name: Finalizing sentry release
-          command: sentry-cli releases finalize "${SENTRY_PROJECT}@${CIRCLE_TAG}"
+          command: sentry-cli releases finalize "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
 
 workflows:
   version: 2
