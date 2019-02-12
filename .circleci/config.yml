@@ -38,6 +38,8 @@ jobs:
             pipenv run python-codacy-coverage -r test-reports/coverage.xml
       - store_test_results:
           path: test-reports
+      - store_artifacts:
+          path: test-reports
   build:
     working_directory: ~/cyprety-rental-bot
     docker:
