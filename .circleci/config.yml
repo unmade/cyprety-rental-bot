@@ -79,7 +79,7 @@ jobs:
           name: Deploy
           command: |
             echo "${SERVER_PUBLIC_KEY}" >> ~/.ssh/known_hosts
-            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
+            ssh "${SERVER_USER}"@"${SERVER_HOST}" 'bash -s' < ./.circleci/deploy.sh "${TELEGRAM_BOT_TOKEN}" "${CIRCLE_TAG}" "${SENTRY_DSN}" "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
       - run:
           name: Finalizing sentry release
           command: sentry-cli releases finalize "${SENTRY_RELEASE_PREFIX}@${CIRCLE_TAG}"
