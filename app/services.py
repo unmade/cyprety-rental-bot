@@ -1,8 +1,7 @@
 import asyncio
+import dataclasses
 import itertools
 from typing import AsyncGenerator, List
-
-import dataclasses
 
 from . import datatypes, entities, protocols
 from . import providers as providers_module

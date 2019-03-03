@@ -1,6 +1,5 @@
-from typing import Optional
-
 import dataclasses
+from typing import Optional
 
 from . import datatypes
 

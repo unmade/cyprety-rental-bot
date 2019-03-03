@@ -22,6 +22,9 @@ docker run \
     --env TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
     --env SENTRY_DSN=${SENTRY_DSN} \
     --env SENTRY_RELEASE_VERSION=${SENTRY_RELEASE_VERSION} \
+    --cpus=".5" \
+    --memory="512m" \
+    --memory-swap="512m" \
     --volume ~/cyprety-rental-bot/sqlite.db:/cyprety-rental-bot/sqlite.db \
     --name ${CONTAINER_NAME} \
     fdooch/cyrentbot:${TAG}
