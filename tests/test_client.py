@@ -31,3 +31,14 @@ async def test_client_get(aresponses):
     webclient = client.Client()
     assert await webclient.get(f'https://{host}{path}') == ''
     await webclient.close()
+
+
+@pytest.mark.asyncio
+async def test_client_get_raises_error(aresponses):
+    host = 'realestates.com'
+    path = '/list'
+    aresponses.add(host, path, 'get', response=aiohttp.ClientOSError)
+
+    webclient = client.Client()
+    assert await webclient.get(f'https://{host}{path}') == ''
+    await webclient.close()

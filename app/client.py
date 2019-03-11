@@ -14,5 +14,8 @@ class Client:
         await self.session.close()
 
     async def get(self, url: str) -> str:
-        async with self.session.get(url, ssl=self.ssl_context) as response:
-            return await response.text()
+        try:
+            async with self.session.get(url, ssl=self.ssl_context) as response:
+                return await response.text()
+        except aiohttp.ClientError:
+            return ""
