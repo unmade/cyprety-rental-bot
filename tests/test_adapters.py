@@ -1,3 +1,4 @@
+import aiogram
 import aiosqlite
 import pytest
 
@@ -147,7 +148,6 @@ async def test_sqlite_db_adapter_execute(
 
 
 def test_bot_adapter_init(bot_adapter: adapters.BotAdapter):
-    import aiogram
     assert isinstance(bot_adapter.bot, aiogram.Bot)
     assert isinstance(bot_adapter.dp, aiogram.Dispatcher)
 
@@ -164,5 +164,17 @@ async def test_bot_adapter_close(amocker, bot_adapter: adapters.BotAdapter):
 @pytest.mark.asyncio
 async def test_bot_adapter_broadcast(chat_factory, bot_adapter: adapters.BotAdapter):
     chat = chat_factory()
+    assert await bot_adapter.broadcast(chats=[chat], text='') is None
+    assert bot_adapter.bot.send_message.called
+
+
+@pytest.mark.asyncio
+async def test_bot_adapter_broadcast_exc(amocker, chat_factory, bot_adapter: adapters.BotAdapter):
+    def raise_exc(*args, **kwargs):
+        del args, kwargs
+        aiogram.exceptions.Unauthorized.detect('bot was blocked by the user')
+
+    chat = chat_factory()
+    bot_adapter.bot.send_message = amocker.CoroutineMock(side_effect=raise_exc)
     assert await bot_adapter.broadcast(chats=[chat], text='') is None
     assert bot_adapter.bot.send_message.called

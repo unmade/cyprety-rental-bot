@@ -104,5 +104,8 @@ class BotAdapter:
 
     async def broadcast(self, chats: List[entities.Chat], text: str) -> None:
         for chat in chats:
-            await self.bot.send_message(chat.id, text=text, parse_mode='Markdown')
+            try:
+                await self.bot.send_message(chat.id, text=text, parse_mode='Markdown')
+            except aiogram.exceptions.BotBlocked:
+                pass
             await asyncio.sleep(.05)  # 20 messages per second
