@@ -16,14 +16,13 @@ class SqliteDBAdapter:
 
     async def get_connection(self) -> aiosqlite.Connection:
         if self.connect is None:
-            self.connect = aiosqlite.connect(self.database)
-            await self.connect.__aenter__()
+            self.connect = await aiosqlite.connect(self.database)
             self.connect.row_factory = aiosqlite.Row
         return self.connect
 
     async def close(self) -> None:
         if self.connect is not None:
-            await self.connect.__aexit__(exc_type=None, exc_val=None, exc_tb=None)
+            await self.connect.close()
             self.connect = None
 
     @contextlib.asynccontextmanager
@@ -31,12 +30,12 @@ class SqliteDBAdapter:
             self, statement: str, values: Optional[Iterable] = None, commit: bool = False
     ) -> aiosqlite.Cursor:
         connect = await self.get_connection()
-        async with connect.execute(statement, values) as cursor:
-            try:
-                yield cursor
-            finally:
-                if commit:
-                    await connect.commit()
+        cursor = await connect.execute(statement, values)
+        try:
+            yield cursor
+        finally:
+            if commit:
+                await connect.commit()
 
     @classmethod
     def row_to_chat(cls, row: Mapping) -> entities.Chat:

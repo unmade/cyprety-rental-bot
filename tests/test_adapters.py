@@ -8,7 +8,7 @@ from app import adapters, datatypes, entities
 @pytest.mark.asyncio
 async def test_sqlite_db_adapter_close_without_opening_connection(amocker):
     db_adapter = adapters.SqliteDBAdapter(':memory:')
-    with amocker.patch('aiosqlite.Connection.__aexit__') as close_mock:
+    with amocker.patch('aiosqlite.Connection.close') as close_mock:
         await db_adapter.close()
     assert close_mock.called is False
 
@@ -16,20 +16,22 @@ async def test_sqlite_db_adapter_close_without_opening_connection(amocker):
 @pytest.mark.asyncio
 async def test_sqlite_db_adapter_close(amocker):
     db_adapter = adapters.SqliteDBAdapter(':memory:')
-    connect = amocker.CoroutineMock(__aexit__=amocker.CoroutineMock())
+    connect = amocker.CoroutineMock(spec=aiosqlite.Connection)
     db_adapter.connect = connect
 
     await db_adapter.close()
 
     assert db_adapter.connect is None
-    assert connect.__aexit__.called
+    assert connect.close.called
 
 
 @pytest.mark.asyncio
 async def test_get_connection(amocker):
     db_adapter = adapters.SqliteDBAdapter(':memory:')
-    connection_mock = amocker.MagicMock(spec=aiosqlite.Connection)
-    with amocker.patch('aiosqlite.connect', return_value=connection_mock) as connect_mock:
+    connection_mock = amocker.CoroutineMock()
+    connect = amocker.CoroutineMock(return_value=connection_mock)
+
+    with amocker.patch('aiosqlite.connect', connect) as connect_mock:
         connection = await db_adapter.get_connection()
 
     assert connection == connection_mock
@@ -137,7 +139,10 @@ async def test_sqlite_db_adapter_row_to_chat(
 async def test_sqlite_db_adapter_execute(
         amocker, sqlite_db_adapter: adapters.SqliteDBAdapter, committed
 ):
-    connect = amocker.CoroutineMock(spec=aiosqlite.Connection)
+    connect = amocker.CoroutineMock(
+        execute=amocker.CoroutineMock(),
+        commit=amocker.CoroutineMock(),
+    )
     sqlite_db_adapter.get_connection = amocker.CoroutineMock(return_value=connect)
 
     async with sqlite_db_adapter.execute('SELECT 1', commit=committed):
