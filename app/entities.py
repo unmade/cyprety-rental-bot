@@ -6,7 +6,7 @@ from . import datatypes
 
 @dataclasses.dataclass
 class Chat:
-    id: int
+    id: int  # pylint: disable=invalid-name
     min_price: Optional[datatypes.Price] = None
     max_price: Optional[datatypes.Price] = None
 
