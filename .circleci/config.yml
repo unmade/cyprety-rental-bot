@@ -46,6 +46,8 @@ jobs:
       - image: circleci/python:3.7.2
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run:
           name: Build Docker image
           command: docker build . -t fdooch/cyrentbot:"${CIRCLE_TAG}"
