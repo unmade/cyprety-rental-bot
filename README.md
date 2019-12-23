@@ -19,6 +19,23 @@ pipenv install --deploy
 TELEGRAM_BOT_TOKEN=<YOUR_BOT_TOKEN> python -m app
 ```
 
+Or with docker:
+
+```bash
+docker run \
+    -d \
+    --rm \
+    --env TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN} \
+    --env SENTRY_DSN=${SENTRY_DSN} \
+    --env SENTRY_RELEASE_VERSION=${SENTRY_RELEASE_VERSION} \
+    --env DATABASE_PATH="db/sqlite.db" \
+    --volume ~/db:/db \
+    --name ${CONTAINER_NAME} \
+    fdooch/cyrentbot:${TAG}
+```
+
+> Currently only sqlite database is supported
+
 ## History
 
 Initial version of this bot was developed using
