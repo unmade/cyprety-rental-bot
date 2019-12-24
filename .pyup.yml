@@ -1,5 +1,7 @@
 update: insecure
 schedule: "every month"
 requirements:
-  - Pipfile
-  - Pipfile.lock
+  - requirements/dev-requirements.txt:
+      update: False
+  - requirements/requirements.txt:
+      update: insecure

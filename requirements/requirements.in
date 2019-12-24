@@ -1,0 +1,8 @@
+aiogram
+aiohttp
+aiosqlite
+beautifulsoup4
+certifi
+pytz
+sentry-sdk
+typing-extensions

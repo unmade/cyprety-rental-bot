@@ -3,8 +3,7 @@
 
 !app/**
 
-!Pipfile
-!Pipfile.lock
+!requirements/**
 
 
 .DS_Store

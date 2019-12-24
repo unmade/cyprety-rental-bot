@@ -1,0 +1,13 @@
+-c requirements.txt
+
+asynctest
+aresponses
+codacy-coverage
+flake8
+isort
+mypy
+pylint
+pytest
+pytest-asyncio
+pytest-cov
+pytest-faker

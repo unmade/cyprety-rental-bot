@@ -7,26 +7,26 @@ nopyc:
 
 
 isort:
-	@pipenv run isort --check-only -q
+	@isort --check-only -q
 
 
 flake8:
-	@pipenv run flake8 app/* tests/*
+	@flake8 app/* tests/*
 
 
 pylint:
-	@pipenv run pylint app/* tests/*
+	@pylint app/* tests/*
 
 
 mypy:
-	@MYPYPATH=$(MYPYPATH) pipenv run mypy app
+	@MYPYPATH=$(MYPYPATH) mypy app
 
 
 lint: isort flake8 pylint mypy
 
 
 test:
-	@PYTHONPATH=$(PYTHONPATH) pipenv run pytest
+	@PYTHONPATH=$(PYTHONPATH) pytest
 
 
 commit:

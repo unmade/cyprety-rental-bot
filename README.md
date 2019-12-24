@@ -15,8 +15,9 @@ that sends you notifications with new advertisements for rent in Limassol distri
 To start backend for your own bot install dependencies and start application:
 
 ```bash
-pipenv install --deploy
-TELEGRAM_BOT_TOKEN=<YOUR_BOT_TOKEN> python -m app
+python3 -m venv ./.venv
+./.venv/bin/pip install -r requirements/requirements.txt
+TELEGRAM_BOT_TOKEN=<YOUR_BOT_TOKEN> ./.venv/bin/python -m app
 ```
 
 Or with docker:
@@ -47,7 +48,8 @@ workflow with some inspiration from clean architecture. You can read my aftertho
 Download copy of this repo and install requirements.
 
 ```bash
-pipenv install --dev
+python3 -m venv ./.venv
+./.venv/bin/pip install -r requirements/requirements.txt -r requirements/dev-requirements.txt
 ```
 
 Make changes and ensure linters and tests are pasing:

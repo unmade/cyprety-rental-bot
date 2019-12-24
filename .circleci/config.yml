@@ -13,14 +13,13 @@ jobs:
             sudo chown -R circleci:circleci /usr/local/bin
             sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
       - restore_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps9-{{ .Branch }}-{{ checksum "requirements/requirements.txt" }}-{{ checksum "requirements/dev-requirements.txt" }}
       - run:
           name: Installing dependencies
           command: |
-            sudo pip install pipenv
-            pipenv install --dev --deploy --ignore-pipfile
+            pip install -r requirements/requirements.txt -r requirements/dev-requirements.txt
       - save_cache:
-          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: deps9-{{ .Branch }}-{{ checksum "requirements/requirements.txt" }}-{{ checksum "requirements/dev-requirements.txt" }}
           paths:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.7/site-packages"
@@ -34,8 +33,8 @@ jobs:
       - run:
           name: Generating test results
           command: |
-            pipenv run coverage xml -o test-reports/coverage.xml
-            pipenv run python-codacy-coverage -r test-reports/coverage.xml
+            coverage xml -o test-reports/coverage.xml
+            python-codacy-coverage -r test-reports/coverage.xml
       - store_test_results:
           path: test-reports
       - store_artifacts:

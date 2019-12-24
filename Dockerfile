@@ -2,14 +2,12 @@ FROM python:3.7-alpine
 
 ENV APP_HOME="/cyprety-rental-bot"
 
-COPY Pipfile /
-COPY Pipfile.lock /
+COPY requirements/ /requirements/
 
-RUN pip3 install --upgrade pip \
-    && pip3 install pipenv
+RUN pip3 install --upgrade pip
 
 RUN apk add --virtual .build-deps gcc libc-dev \
-    && pipenv install --system --ignore-pipfile --deploy \
+    && pip install -r requirements/requirements.txt \
     && apk del .build-deps gcc libc-dev
 
 WORKDIR ${APP_HOME}
