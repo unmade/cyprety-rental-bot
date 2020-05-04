@@ -4,4 +4,4 @@ requirements:
   - requirements/dev-requirements.txt:
       update: False
   - requirements/requirements.txt:
-      update: insecure
+      update: False 

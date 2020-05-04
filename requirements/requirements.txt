@@ -4,20 +4,20 @@
 #
 #    pip-compile requirements/requirements.in
 #
-aiogram==2.4
-aiohttp==3.6.2
-aiosqlite==0.11.0
+aiogram==2.8              # via -r requirements/requirements.in
+aiohttp==3.6.2            # via -r requirements/requirements.in, aiogram
+aiosqlite==0.12.0         # via -r requirements/requirements.in
 async-timeout==3.0.1      # via aiohttp
 attrs==19.3.0             # via aiohttp
-babel==2.7.0              # via aiogram
-beautifulsoup4==4.8.1
-certifi==2019.11.28
+babel==2.8.0              # via aiogram
+beautifulsoup4==4.9.0     # via -r requirements/requirements.in
+certifi==2020.4.5.1       # via -r requirements/requirements.in, aiogram, sentry-sdk
 chardet==3.0.4            # via aiohttp
-idna==2.8                 # via yarl
-multidict==4.7.2          # via aiohttp, yarl
-pytz==2019.3
-sentry-sdk==0.13.5
-soupsieve==1.9.5          # via beautifulsoup4
-typing-extensions==3.7.4.1
-urllib3==1.25.7           # via sentry-sdk
+idna==2.9                 # via yarl
+multidict==4.7.5          # via aiohttp, yarl
+pytz==2020.1              # via -r requirements/requirements.in, babel
+sentry-sdk==0.14.3        # via -r requirements/requirements.in
+soupsieve==2.0            # via beautifulsoup4
+typing-extensions==3.7.4.2  # via -r requirements/requirements.in
+urllib3==1.25.9           # via sentry-sdk
 yarl==1.4.2               # via aiohttp
